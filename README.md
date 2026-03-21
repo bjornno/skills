@@ -58,6 +58,7 @@ In Cursor chat, type **`/`** and choose:
 | `/storyline-add-flow-diagram` | Add Mermaid for a complex flow |
 | `/storyline-split-feature` | Split folder into intent / experience / constraints |
 | `/storyline-story-first` | Rewrite specs around flows & examples |
+| `/storyline-implement-from-spec` | User edited spec → read folder, gap analysis, implement acceptance |
 
 ### Layout this workflow expects
 

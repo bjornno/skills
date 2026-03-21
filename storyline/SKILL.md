@@ -7,6 +7,8 @@ description: >-
   product-intent discussion, or when the user asks for documentation. Short
   technical constraints only; optional Mermaid for complex flows; optional
   split intent/experience/constraints files. Not a heavyweight spec pipeline.
+  When the user edits specs and asks to implement, treat updated specs as the
+  source of truth and close gaps in code (then align docs if needed).
 ---
 
 # Storyline
@@ -26,13 +28,80 @@ If the user **only** explores or asks questions without changing behavior, you m
 ## Layout
 
 - **`specs/OVERVIEW.md`** — product- and system-level **orientation** (what the service offers, main capabilities in user terms, who it’s for). Keep **Tech stack**, **External systems**, and **Code map** short; they exist so developers can orient quickly, not to duplicate feature specs.
-- **`specs/<feature-slug>/`** — one **feature / area** folder (see below).
+- **Feature specs** — each feature lives in a folder that contains **`SPEC.md`** as the entry (see **Feature folder shape** and **Scaling** below). Path is either **flat** (`specs/<feature-slug>/`) or **grouped** (`specs/<area>/<feature-slug>/`).
 - **Optional extras** (any layout):
-  - **`ui.md`** — hints for **UI / app developers** consuming this backend (see **UI hints** below). Especially useful when this repo is API-only.
+  - **`specs/ARCHITECTURE.md`** — **only if** the codebase uses **non-obvious structural patterns** (see **Architecture patterns** below). Omit entirely when the stack is conventional.
+  - **`ui.md`** (per feature) — hints for **UI / app developers** consuming this backend (see **UI hints** below). Especially useful when this repo is API-only.
   - `checklists.md` — release / QA bullets.
   - `contracts/` or `contracts.md` — minimal API or event snippets if stakeholders need a stable reference (avoid duplicating OpenAPI if generated elsewhere).
 
 Do not put specs only in chat; they belong in `specs/`.
+
+### Architecture patterns (`specs/ARCHITECTURE.md`) — optional
+
+Create **`specs/ARCHITECTURE.md`** only when **defaults would mislead** a new developer or agent (e.g. not classic controller → service → repository everywhere, CQRS-style API split, in-memory domain stores, event-driven core, ports & adapters, etc.).
+
+**Include (short):**
+
+- **Baseline in one sentence** — e.g. “Most domains use Spring MVC + `@Service` + JPA repositories unless noted below.”
+- **Exceptions only** — bullet per deviation: **what** differs, **where** in the tree (package or module), **why** (one line), link to the feature **`SPEC.md`** path (flat or nested) if detail lives there.
+- **Changelog** at bottom — dated lines when a global pattern changes.
+
+**Do not include:** tutorials on Spring Boot, generic layering diagrams, or anything true for “every” service in the repo. If everything is standard, **do not create this file**.
+
+When the file exists, add a single link under **For developers** in **`OVERVIEW.md`** (e.g. “Non-standard patterns: [ARCHITECTURE.md](ARCHITECTURE.md)”). Update **`ARCHITECTURE.md`** in the same session when you introduce or remove a **cross-cutting** structural deviation—not for every small refactor.
+
+### Scaling: area folders and indexes
+
+As the number of features grows, keep **navigation** cheap for humans and agents.
+
+**When to introduce `specs/<area>/` groupings**
+
+- Many feature folders at **`specs/`** root (rough guide: **~8+** or whenever finding a spec feels noisy).
+- Clear **bounded contexts** that match how you think or how packages are organized (e.g. `workshop`, `vehicle`, `integration`).
+
+**Nested layout**
+
+```text
+specs/
+  OVERVIEW.md
+  INDEX.md              # optional — master table of all features
+  ARCHITECTURE.md         # optional
+  README.md               # how specs work in this repo
+  workshop/
+    README.md             # optional — index of workshop-* specs only
+    jobs/
+      SPEC.md
+      intent.md
+      …
+  vehicle/
+    timeline/
+      SPEC.md
+```
+
+- Each **feature** is still a folder with **`SPEC.md`** + optional split files; only the **path** gains an **`/<area>/`** segment.
+- **`<area>`** = short, stable slug (match domain package or team language).
+
+**Indexes (pick what you need)**
+
+| File | Role |
+|------|------|
+| **`specs/INDEX.md`** | **Master directory**: table of **Area** (if nested), **Feature**, **Link to `SPEC.md`**, **One-line summary**. Update when adding/renaming/removing a feature folder. Agents use this for **discovery** when the tree is large. |
+| **`specs/<area>/README.md`** | **Area hub**: list of features in that area + links; optional one paragraph on how the area fits the product. |
+
+**`OVERVIEW.md` vs indexes**
+
+- **`OVERVIEW.md` → Main capabilities** stays **short** (product-facing bullets with links to **primary** feature entries).
+- **`INDEX.md`** holds the **complete** spec catalog; link it from **`specs/README.md`** and optionally from **`OVERVIEW.md`** (“[Full spec index](INDEX.md)” under For developers).
+
+**Migration**
+
+- Moving `specs/foo/` → `specs/area/foo/`: update **all inbound links** (`OVERVIEW.md`, `INDEX.md`, `ARCHITECTURE.md`, other specs), then **git mv** (preserve history). Append **Changelog** lines on affected **`SPEC.md`** files if paths matter to readers.
+
+**Rules**
+
+- Every feature still has **exactly one canonical entry file**: `SPEC.md` (Changelog lives there).
+- **Relative links** between files stay within the same feature folder when possible; link across features using paths from `specs/` root (e.g. `../vehicle/timeline/SPEC.md` from a sibling area—prefer root-anchored paths like `vehicle/timeline/SPEC.md` in INDEX).
 
 ### Feature folder shape
 
@@ -50,7 +119,7 @@ Do not put specs only in chat; they belong in `specs/`.
 
 Rules:
 
-- **`SPEC.md` is always the canonical entry** (and holds **Changelog**). Links in `specs/OVERVIEW.md` should point to **`specs/<slug>/SPEC.md`**.
+- **`SPEC.md` is always the canonical entry** (and holds **Changelog**). Links in **`OVERVIEW.md`** and **`INDEX.md`** should point to that file—**flat** `specs/<slug>/SPEC.md` or **nested** `specs/<area>/<slug>/SPEC.md`.
 - Split only when it **reduces noise** or **edit churn**—not to mimic heavyweight toolchains.
 - Mermaid diagrams live in **`experience.md`** when split; otherwise in **`SPEC.md`** after **User flows**.
 
@@ -72,17 +141,17 @@ Use **`ui.md`** when this project ships **HTTP APIs** and another codebase owns 
 
 **Before changing code**, decide which spec folder applies:
 
-1. **Continuing** — same feature area, same conversation thread, or an existing `specs/<slug>/` clearly matches.
+1. **Continuing** — same feature area, same conversation thread, or an existing feature folder (flat or `specs/<area>/<slug>/`) clearly matches.
 2. **New** — new product slice that does not map cleanly to an existing folder.
 
 Then:
 
 - **Continuing** → update the **right file(s)** for what changed (`experience.md` for flows/acceptance, `intent.md` for scope/why, `constraints.md` for NFRs, **`ui.md`** when client-facing API or error behavior changes); **always** append **`SPEC.md` Changelog** with date (`YYYY-MM-DD`) and a short note (which file, what shifted).
-- **New** → create `specs/<feature-slug>/SPEC.md` (monolith or index + first split files); add a **Main capabilities** bullet in `OVERVIEW.md` (user-facing wording + link to `SPEC.md`).
+- **New** → create `specs/<feature-slug>/SPEC.md` or `specs/<area>/<feature-slug>/SPEC.md` (monolith or index + first split files); add a **Main capabilities** bullet in **`OVERVIEW.md`** (link to **`SPEC.md`**); if **`INDEX.md`** (or **`specs/<area>/README.md`**) exists, add a row or link there too.
 
 ### `OVERVIEW.md` — when to edit
 
-Update in the same session when integrations, major capabilities, stack, or product **boundary** changes. Small edits + one Changelog line. Do not paste full feature narratives into `OVERVIEW.md`—link to `specs/<slug>/SPEC.md`.
+Update in the same session when integrations, major capabilities, stack, or product **boundary** changes. Small edits + one Changelog line. Do not paste full feature narratives into `OVERVIEW.md`—link to the feature’s **`SPEC.md`** (any depth). If **`ARCHITECTURE.md`** or **`INDEX.md`** exists, add or keep links under **For developers** when relevant.
 
 ## How specs relate to code
 
@@ -243,8 +312,20 @@ One-line summary. Detail: [intent](intent.md) · [experience](experience.md) · 
 
 ## Two-way flow (spec ↔ code)
 
-- **Code changed** → same session, align **flows, stories, acceptance, technical requirements**, and **`ui.md`** (if present) when API/client-visible behavior changes; **`SPEC.md` Changelog** always; update **`OVERVIEW.md`** only when capabilities or boundaries shift.
-- **User edits spec** → treat as intent; implement or track unknowns under **Open questions** (in `intent.md` when split).
+- **Code changed** → same session, align **flows, stories, acceptance, technical requirements**, and **`ui.md`** (if present) when API/client-visible behavior changes; **`SPEC.md` Changelog** always; update **`OVERVIEW.md`** only when capabilities or boundaries shift. If **`specs/INDEX.md`** (or an area **`README.md`**) exists, add or adjust the row/link when you **add, rename, or remove** a feature spec folder. If **`specs/ARCHITECTURE.md`** exists and you change a **documented cross-cutting pattern**, update that file + its Changelog in the same session.
+- **User edits spec** → treat as **product intent**; implement or track unknowns under **Open questions** (in `intent.md` when split).
+
+### Spec-led workflow (user changes spec, then asks for code)
+
+When the user **edits `specs/`** and asks to build, fix, or align behavior (e.g. “implement this”, “make the API match the spec”, “close the gaps”):
+
+1. **Find the feature folder** — if the slug is unclear, read **`specs/INDEX.md`** (if present) or **`OVERVIEW.md`**. Open **`specs/.../SPEC.md`**, then follow links to **`intent.md`**, **`experience.md`**, **`constraints.md`**, **`ui.md`** as needed. Do not skip acceptance and scope. If **`specs/ARCHITECTURE.md`** exists, skim it when the task might touch a **documented non-standard** layering or module boundary.
+2. **Treat the spec as authoritative** for **what** and **why**; use code to learn **current** behavior, then **change code** (or config) until it matches agreed acceptance—unless the user explicitly asks only for a feasibility review.
+3. **Gap list** — briefly note mismatches (spec vs code) before or while implementing; if something in the spec is impossible or ambiguous, **stop and ask** or record under **Open questions** instead of silently ignoring.
+4. **After implementation** — update **`experience.md` / `constraints.md` / `ui.md`** only if reality differs from what you wrote (e.g. error codes, edge case); append **`SPEC.md` Changelog** with date and what was implemented or deferred.
+5. **Conflicts** — if spec and **Open questions** contradict each other, prefer **explicit user message** in this chat over guessing.
+
+This is the same priority as the always-on rule: spec edits are not “documentation debt”—they are **requests for behavior change** unless the user says otherwise (e.g. “draft only”, “don’t code yet”).
 
 ## OVERVIEW.md template
 
@@ -257,13 +338,17 @@ Product-first; keep technical sections brief.
 <!-- For whom; 2–5 sentences in plain language -->
 
 ## Main capabilities
-<!-- User- or business-facing bullets; link specs/<slug>/SPEC.md (entry) -->
+<!-- User- or business-facing bullets; link each feature’s SPEC.md (flat or specs/<area>/<slug>/SPEC.md) -->
 
 ## For developers (short)
 ### Tech stack & runtime
 ### External systems
 ### Code map
 <!-- High level only -->
+### Architectural patterns (optional)
+<!-- If specs/ARCHITECTURE.md exists: [Non-standard patterns](ARCHITECTURE.md) -->
+### Spec index (optional)
+<!-- If specs/INDEX.md exists: [Full spec index](INDEX.md) -->
 
 ## Changelog
 - YYYY-MM-DD: …
