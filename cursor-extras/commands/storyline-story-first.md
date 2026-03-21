@@ -1,0 +1,1 @@
+Rewrite `specs/<slug>/SPEC.md` (or `experience.md` + `intent.md` if split) around **user flows and examples**; move or drop implementation detail; keep **Technical requirements** / **constraints** as short bullets. Update Changelog.

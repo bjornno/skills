@@ -1,0 +1,35 @@
+{
+  "name": "create-storyline",
+  "version": "1.0.0",
+  "description": "Install Storyline in a project: Cursor skill, rule, slash commands, specs/README (pairs with npx skills add bjornno/skills --skill storyline)",
+  "type": "module",
+  "bin": {
+    "create-storyline": "./bin/cli.mjs",
+    "storyline-install": "./bin/cli.mjs"
+  },
+  "files": [
+    "bin",
+    "cursor-extras",
+    "template",
+    "storyline"
+  ],
+  "keywords": [
+    "cursor",
+    "specs",
+    "user-stories",
+    "storyline",
+    "scaffold"
+  ],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bjornno/skills.git"
+  },
+  "bugs": {
+    "url": "https://github.com/bjornno/skills/issues"
+  },
+  "homepage": "https://github.com/bjornno/skills#readme",
+  "engines": {
+    "node": ">=18"
+  }
+}

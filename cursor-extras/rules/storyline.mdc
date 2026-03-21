@@ -1,0 +1,19 @@
+---
+description: Keep living specs under specs/ in sync with code when implementing or changing behavior (Storyline workflow)
+alwaysApply: true
+---
+
+# Storyline
+
+Follow the **storyline** skill. Read it from, in order of preference:
+
+1. **This repo:** `.cursor/skills/storyline/SKILL.md` (if you copied the skill into the project), or  
+2. **User skills:** `~/.cursor/skills/storyline/SKILL.md` (if installed with `npx skills add bjornno/skills --skill storyline`).
+
+Whenever you implement features, fix behavior-affecting bugs, or refactor user-visible behavior:
+
+- Update the feature spec **the same session**: **`SPEC.md`** (monolith) **or** **`intent.md` / `experience.md` / `constraints.md`** when split—see the skill’s table. For APIs consumed by another app, add or refresh **`ui.md`**. Always append **`SPEC.md` Changelog**. Prioritize **why**, **flows**, **stories**, **acceptance**; keep **technical requirements** short. Do not mirror implementation. For **complex** flows, a **small Mermaid** diagram (user-facing labels) in `experience.md` or `SPEC.md`.
+- Keep **`specs/OVERVIEW.md`** product-oriented; link to **`specs/<slug>/SPEC.md`** as the entry.
+- New feature folders get a **Main capabilities** link in `OVERVIEW.md`.
+
+Copy-paste phrases: `.cursor/skills/storyline/prompts.md` if present, else `~/.cursor/skills/storyline/prompts.md`. Slash commands: **`/storyline-*`** in `.cursor/commands/`.

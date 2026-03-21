@@ -1,0 +1,1 @@
+Update `specs/OVERVIEW.md` for a product reader: what the service does, main capabilities in plain language, short “for developers” section. Keep links to feature `specs/<slug>/SPEC.md` entries. Trim bloat. Follow the **storyline** skill (`~/.cursor/skills/storyline/SKILL.md` or `.cursor/skills/storyline/SKILL.md`) and append a Changelog line with today’s date.
