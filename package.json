@@ -1,23 +1,26 @@
 {
   "name": "create-storyline",
-  "version": "1.0.0",
-  "description": "Install Storyline in a project: Cursor skill, rule, slash commands, specs/README (pairs with npx skills add bjornno/skills --skill storyline)",
+  "version": "1.1.0",
+  "description": "Install Cursor agent skills into a project: skill files, rules, slash commands (storyline, fn-contracts, and more)",
   "type": "module",
   "bin": {
     "create-storyline": "./bin/cli.mjs",
-    "storyline-install": "./bin/cli.mjs"
+    "storyline-install": "./bin/cli.mjs",
+    "create-fn-contracts": "./bin/cli.mjs",
+    "fn-contracts-install": "./bin/cli.mjs"
   },
   "files": [
     "bin",
-    "cursor-extras",
-    "template",
-    "storyline"
+    "storyline",
+    "fn-contracts"
   ],
   "keywords": [
     "cursor",
     "specs",
     "user-stories",
     "storyline",
+    "fn-contracts",
+    "functional-contracts",
     "scaffold"
   ],
   "license": "MIT",

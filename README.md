@@ -1,54 +1,36 @@
 # bjornno/skills
 
-Personal [agent skills](https://skills.sh) for Cursor and other agents. Two ways to use **Storyline**—pick one or both.
+Personal [agent skills](https://skills.sh) for Cursor and other agents.
+
+| Skill | What it does |
+|-------|-------------|
+| **[Storyline](storyline/SKILL.md)** | Living feature docs (stories, flows, acceptance) in `specs/` next to code |
+| **[fn-contracts](fn-contracts/SKILL.md)** | Functional contract architecture: `fun interface` + `operator invoke` for composable, testable Kotlin/Spring services |
+
+---
 
 ## Storyline
 
 **Storyline** keeps **user stories, flows, and acceptance** in `specs/` next to the code—intent-first, not a clone of heavier spec toolchains. Good for backends with a separate UI: optional `ui.md` for app developers.
 
-### Project-only (recommended for teams using git)
-
-You do **not** need the Skills CLI. From your app repository root:
+### Install into a project
 
 ```bash
-cd your-app
-npm create storyline@latest
-# or: npx create-storyline@latest
+npx create-storyline@latest
+# or: npx create-storyline@latest /path/to/project
 ```
 
-That installs **everything into this repo only**: `.cursor/skills/storyline/` (SKILL + prompts), `.cursor/rules/storyline.mdc`, `.cursor/commands/storyline-*.md`, and `specs/README.md` (if missing). **Commit** those paths—teammates get Storyline when they pull. **Skip** “Install the skill (global)” below unless you want a copy under `~/.cursor/skills/` too.
+Installs `.cursor/skills/storyline/`, `.cursor/rules/storyline.mdc`, `.cursor/commands/storyline-*.md`, and `specs/README.md` (if missing). **Commit** those paths—teammates get Storyline when they pull.
 
-### 1) Install the skill (global / cross-project)
+Options: `--force-readme` (overwrite `specs/README.md`), `--dry-run`.
 
-Uses the ecosystem CLI ([skills.sh](https://skills.sh)):
+### Install globally (optional)
 
 ```bash
 npx skills add bjornno/skills --skill storyline
 ```
 
-Update later:
-
-```bash
-npx skills update
-```
-
-### 2) Installer options (same as project-only above)
-
-```bash
-npx create-storyline@latest /path/to/project
-npx create-storyline --force-readme   # replace specs/README.md
-npx create-storyline --dry-run
-```
-
-Until `create-storyline` is on npm, from a clone of this repo:
-
-```bash
-node /path/to/bjornno-skills/bin/cli.mjs /path/to/app
-```
-
-### 3) Slash commands (after project install)
-
-In Cursor chat, type **`/`** and choose:
+### Slash commands
 
 | Command | Purpose |
 |--------|---------|
@@ -60,55 +42,92 @@ In Cursor chat, type **`/`** and choose:
 | `/storyline-story-first` | Rewrite specs around flows & examples |
 | `/storyline-implement-from-spec` | User edited spec → read folder, gap analysis, implement acceptance |
 
-### Layout this workflow expects
+Details: [`storyline/SKILL.md`](storyline/SKILL.md) · [`storyline/prompts.md`](storyline/prompts.md)
 
-- `specs/OVERVIEW.md` — product-level picture  
-- `specs/<feature-slug>/SPEC.md` — entry + changelog; optional `intent.md`, `experience.md`, `constraints.md`, `ui.md`
+---
 
-Details: see `storyline/SKILL.md`.
+## fn-contracts
 
-### Publish this repo
+**fn-contracts** teaches agents the functional contract architecture: define capabilities as Kotlin `fun interface` with `operator invoke`, implement as local-db, HTTP client, caching decorator, routing switch, controller, or any adapter. One contract, many wiring options, trivially testable with lambdas.
 
-1. Create **GitHub** repo `bjornno/skills` and push this folder’s contents as the root.  
-2. In `package.json`, set `"repository.url"` if yours differs.  
-3. Publish the installer package (optional, for `npm create storyline`):
+### Install into a project
 
-   ```bash
-   npm login
-   npm publish --access public
-   ```
+```bash
+npx create-fn-contracts@latest
+# or: npx create-fn-contracts@latest /path/to/project
+```
 
-If the package is not on npm yet, use **`node …/bin/cli.mjs`** as in **§2** above.
+Installs `.cursor/skills/fn-contracts/`, `.cursor/rules/fn-contracts.mdc`, and `.cursor/commands/fn-contracts-*.md`.
 
-## More than one skill in this repo
+Options: `--dry-run`.
 
-This repository is **not** single-skill-only. The [Skills CLI](https://skills.sh) expects a GitHub repo with **one folder per skill**, each containing at least **`SKILL.md`** (with YAML frontmatter).
+### Install globally (optional)
 
-Example layout:
+```bash
+npx skills add bjornno/skills --skill fn-contracts
+```
+
+### Slash commands
+
+| Command | Purpose |
+|--------|---------|
+| `/fn-contracts-new` | Define a new functional contract + first implementation |
+| `/fn-contracts-add-impl` | Add an implementation (LocalDb, Client, Controller, Service) |
+| `/fn-contracts-add-decorator` | Add a decorator (Caching, Routing, Validation, Metrics) |
+| `/fn-contracts-review` | Review code for fn-contracts candidates |
+
+Details: [`fn-contracts/SKILL.md`](fn-contracts/SKILL.md) · [`fn-contracts/prompts.md`](fn-contracts/prompts.md)
+
+---
+
+## Install all skills at once
+
+```bash
+node bin/cli.mjs --all /path/to/project
+```
+
+Or globally:
+
+```bash
+npx skills add bjornno/skills --all
+```
+
+## Repo layout
+
+Each skill is **self-contained** — its rule, commands, templates, and prompts all live inside the skill folder.
 
 ```text
 bjornno/skills/
   storyline/
     SKILL.md
     prompts.md
-  ship/                    # hypothetical second skill
+    extras/
+      rules/storyline.mdc
+      commands/storyline-*.md
+    template/
+      specs/README.md
+  fn-contracts/
     SKILL.md
-  cursor-extras/           # Storyline-specific Cursor rule + commands
-  template/                # used by create-storyline only
-  package.json             # npm package create-storyline (Storyline installer)
-  bin/cli.mjs
+    prompts.md
+    extras/
+      rules/fn-contracts.mdc
+      commands/fn-contracts-*.md
+  bin/cli.mjs                # skill-aware installer CLI
+  package.json               # npm installer (create-storyline, create-fn-contracts)
   README.md
 ```
 
-Install a specific skill:
+The installer detects which skill to install from the binary name (`create-storyline` vs `create-fn-contracts`). You can also use `--skill <name>` or `--all`.
 
-```bash
-npx skills add bjornno/skills --skill storyline
-npx skills add bjornno/skills --skill ship
-npx skills add bjornno/skills --all
-```
+## Publish
 
-**Storyline-specific pieces** (only for this workflow): `cursor-extras/`, `template/specs/`, and **`create-storyline`**. Another skill that needs Cursor rules or commands can add e.g. `cursor-extras/my-skill/` plus a separate **`create-my-skill`** package (second `package.json` in a subfolder, or a monorepo tool)—or document “copy these files by hand” if it’s rare.
+1. Push to **GitHub** as `bjornno/skills`.
+2. Publish the npm package (enables `npx create-storyline` and `npx create-fn-contracts`):
+
+   ```bash
+   npm login
+   npm publish --access public
+   ```
 
 ## License
 
