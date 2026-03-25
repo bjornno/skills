@@ -2,12 +2,12 @@
 /**
  * Installs one or all skills into a project.
  *
- * Each skill is self-contained under its own folder:
- *   <skill>/SKILL.md            → .cursor/skills/<skill>/SKILL.md
- *   <skill>/prompts.md          → .cursor/skills/<skill>/prompts.md
- *   <skill>/extras/rules/*      → .cursor/rules/*
- *   <skill>/extras/commands/*   → .cursor/commands/*
- *   <skill>/template/**         → project root (preserving structure)
+ * Each skill is self-contained under skills/<name>/:
+ *   skills/<skill>/SKILL.md            → .cursor/skills/<skill>/SKILL.md
+ *   skills/<skill>/prompts.md          → .cursor/skills/<skill>/prompts.md
+ *   skills/<skill>/extras/rules/*      → .cursor/rules/*
+ *   skills/<skill>/extras/commands/*   → .cursor/commands/*
+ *   skills/<skill>/template/**         → project root (preserving structure)
  *
  * Usage:
  *   npx create-storyline@latest [dir]
@@ -22,7 +22,7 @@ import path from "node:path"
 import { fileURLToPath } from "node:url"
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const kitRoot = path.join(__dirname, "..")
+const kitRoot = path.join(__dirname, "..", "skills")
 
 const SKILLS = {
   storyline: {

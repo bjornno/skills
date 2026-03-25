@@ -1,6 +1,6 @@
 {
   "name": "create-storyline",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "description": "Install Cursor agent skills into a project: skill files, rules, slash commands (storyline, fn-contracts, and more)",
   "type": "module",
   "bin": {
@@ -11,8 +11,7 @@
   },
   "files": [
     "bin",
-    "storyline",
-    "fn-contracts"
+    "skills"
   ],
   "keywords": [
     "cursor",
