@@ -354,9 +354,45 @@ Product-first; keep technical sections brief.
 - YYYY-MM-DD: …
 ```
 
-## Developer prompts
+## Prompts
 
-- **Project-only (typical for git teams):** run **`npm create storyline@latest`** in the app repo — installs **`.cursor/skills/storyline/`** (this skill), **rule**, **commands**, and **`specs/README.md`**. Commit `.cursor/` and specs; no global install required. Details: **bjornno/skills** repo `README.md`.
-- **Optional global copy:** `npx skills add bjornno/skills --skill storyline` — also under `~/.cursor/skills/storyline/` for other tools or personal use.
-- **Slash commands:** `.cursor/commands/storyline-*.md` — type `/` in chat (e.g. `/storyline-refresh-overview`).
-- **Copy-paste phrase table:** [prompts.md](prompts.md) (not auto-loaded as slash commands).
+When the user says any of the phrases below (or something similar), follow the corresponding instruction.
+
+| Trigger | What to do |
+|---------|------------|
+| **"refresh overview"** | Update `specs/OVERVIEW.md` for a product reader: what the service does, main capabilities in plain language, short "for developers" section. Keep links to feature `specs/<slug>/SPEC.md` entries. Trim bloat. Append a Changelog line with today's date. |
+| **"implement from spec"** | The user has edited or is prioritizing a feature under `specs/` as source of truth. Use `specs/INDEX.md` or `OVERVIEW.md` to find the path if needed. Read that feature's `SPEC.md` and linked files (`intent.md`, `experience.md`, `constraints.md`, `ui.md`). Compare to current code; list gaps; implement so acceptance and technical requirements match unless the user said review-only. Resolve ambiguities via Open questions or ask in chat. Append `SPEC.md` Changelog when done; update `INDEX.md` if paths or summaries changed. |
+| **"sync feature"** | For the feature we've been working on (or ask which `specs/<slug>/` folder): update the spec so intent, flows, stories, acceptance, and `ui.md` if present match the current code. Touch only the files that need it. Always append `SPEC.md` Changelog with today's date and a one-line summary. |
+| **"story first"** | Rewrite `specs/<slug>/SPEC.md` (or `experience.md` + `intent.md` if split) around user flows and examples; move or drop implementation detail; keep Technical requirements / constraints as short bullets. Update Changelog. |
+| **"add flow diagram"** | Add or refresh a small Mermaid diagram for the feature under discussion: user-facing labels only (no class names). Put it in `experience.md` when the folder is split, otherwise in `SPEC.md` under user flows. Update `SPEC.md` Changelog. |
+| **"split feature"** | Split `specs/<slug>/` into `intent.md` (why, who, scope, open questions), `experience.md` (flows, optional Mermaid, stories, acceptance), `constraints.md` (technical requirements, API summary, pointers to code). Make `SPEC.md` a short index with links plus Changelog (append today's entry). Ask for `<slug>` if unclear. |
+| **"ui hints"** | Add or update `specs/<slug>/ui.md` for frontend/app developers consuming this backend: auth and path context, screens mapped to HTTP verbs/paths at a high level, dynamic behaviour (schemas, pagination), errors and empty states, refetch after mutations. No OpenAPI paste unless we add a link. Use the feature we're discussing or ask for the slug. Update `SPEC.md` Changelog and link `ui.md` from `SPEC.md` if missing. |
+
+### More prompts (copy-paste or paraphrase)
+
+| Intent | Example prompt |
+|--------|----------------|
+| Capture why / what | "Add a **Why** and **Acceptance** section; keep **Technical requirements** to bullets only." |
+| Tighten overview | "Trim `OVERVIEW.md` to one screenful; keep links to feature specs." |
+| Start a new tracked area | "Create `specs/<slug>/SPEC.md` for what we're building—flows and acceptance first." |
+| Continue an existing area | "Update `specs/<slug>/SPEC.md` so stories and acceptance match what we shipped." |
+| Spec before code (rare) | "Draft a minimal SPEC.md (Why, flows, acceptance only); I'll review before implementation." |
+| Spec from existing code | "Infer user flows and acceptance from the code; keep **Pointers to code** to a few lines." |
+| Tighten scope | "Trim SPEC.md: keep Why, one flow, Stories, Acceptance, Changelog." |
+| Record a product decision | "Append Changelog and add one line under **Technical requirements** or **Open questions**." |
+| Optional checklist | "Add a short `checklists.md` for manual QA of this feature." |
+| Collapse to one file | "Merge `specs/<slug>/` split files back into a single `SPEC.md`; dedupe Changelog." |
+| Architecture exceptions | "Add or refresh `specs/ARCHITECTURE.md` with only non-standard patterns; link from `OVERVIEW.md` For developers." |
+| Spec index / folders | "Add `specs/INDEX.md` and/or group specs under `specs/<area>/`; update `OVERVIEW.md` links." |
+
+## Install
+
+```bash
+npx skills add bjornno/skills --skill storyline
+```
+
+For full Cursor setup (also deploys `.cursor/rules/`, `.cursor/commands/`, and `specs/README.md` template):
+
+```bash
+npx create-storyline@latest
+```

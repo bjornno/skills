@@ -1,1 +1,0 @@
-Add or refresh a **small Mermaid** diagram for the feature under discussion: **user-facing labels** only (no class names). Put it in `experience.md` when the folder is split, otherwise in `SPEC.md` under user flows. Update `SPEC.md` Changelog.

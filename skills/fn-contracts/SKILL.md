@@ -296,3 +296,25 @@ This keeps `invoke` free of transport concerns — it remains testable as a plai
 - Put business logic in the controller's HTTP method — delegate to `invoke`
 - Create a contract for something with exactly one implementation and no foreseeable variation
 - Mix transport annotations (`@PostMapping`) with domain logic in `invoke`
+
+## Prompts
+
+When the user says any of the phrases below (or something similar), follow the corresponding instruction.
+
+| Trigger | What to do |
+|---------|------------|
+| **"new contract"** | Define a `fun interface` contract for the capability in the `common` functions package; group it under `<Domain>Functions`. |
+| **"add db impl"** | Add a `*LocalDbImpl` for the contract that queries the repository; wire with `@Service`. |
+| **"add client impl"** | Add a `*Client` implementation for the contract that calls the endpoint; handle federation routing and metrics. |
+| **"add caching decorator"** | Add a `Caching*` decorator for the contract that checks cache first, delegates on miss, and upserts on hit. |
+| **"add routing decorator"** | Add a `Routing*` implementation for the contract that calls locally when primary, remotely otherwise. |
+| **"add controller"** | Expose the contract as a `@RestController`; put auth/metrics on the HTTP method, delegate to `invoke`. |
+| **"review for fn-contracts"** | Review the code — identify services that should be functional contracts. List candidates with reasoning. |
+| **"refactor to fn-contracts"** | Refactor the class/method to follow the fn-contracts pattern: contract in common, implementation as adapter, update wiring. |
+| **"add test"** | Write a unit test for the implementation using a lambda fake for the contract dependency — no mocking library. |
+
+## Install
+
+```bash
+npx skills add bjornno/skills --skill fn-contracts
+```
