@@ -269,6 +269,7 @@ When the user **edits `specs/`** and asks to implement:
 | **"add flow diagram"** | Add or refresh Mermaid in `intent.md` (or `SPEC.md` if not split). Append Changelog. |
 | **"prepare for review"** | Check review readiness: (1) `intent.md` has problem, users, and flow, (2) `acceptance.md` has testable criteria, (3) `risks.md` has scope in/out, (4) Changelog has today's entry. Report pass/fail per item. Fix what you can without changing intent. If `storyline-review/` exists, remind the user to run `cd storyline-review && npm run dev`. |
 | **"update story map"** | Refresh `specs/STORY-MAP.md` to reflect current features and their journey positions. |
+| **"apply review"** | Read an exported review from `specs/reviews/`, identify concerns and blockers, update the relevant spec files to address them, and append Changelog entries. See **Applying a review** below. |
 | **"start review"** / **"/storyline-review"** | Create a hosted collaborative review session. See **Hosted review workflow** below. |
 
 ## Hosted review workflow
@@ -300,6 +301,35 @@ When the user says **"start review"**, **"/storyline-review"**, or **"create a r
 If the hosted server is not the default, configure it first:
 ```bash
 cd storyline-review/cli && npx tsx index.ts config https://your-server.vercel.app
+```
+
+## Applying a review
+
+When the user says **"apply review"**, or has an exported review file they want to act on:
+
+1. **Find the review file** — look in `specs/reviews/` for the most recent `.md` file (or the specific file the user references).
+2. **Parse the review** — the exported markdown has this structure:
+   - Header with date, scope, mode, and participants
+   - Sections grouped by feature path (e.g. `## cli`, `## export`)
+   - Under each feature, subsections per spec file (e.g. `### acceptance`)
+   - Each verdict entry: participant name, verdict (OK/CONCERN/BLOCKER), and comment
+3. **Triage by verdict:**
+   - **OK** — no action needed, the reviewer approved this file.
+   - **CONCERN** — read the comment, decide if the spec should be updated. Present each concern to the user with a proposed change.
+   - **BLOCKER** — these must be resolved. Read the comment, propose a concrete spec update, and ask the user to confirm before applying.
+4. **Apply to specs** — for each concern/blocker the user agrees to address:
+   - Update the relevant spec file(s) under `specs/<feature>/`
+   - Append a Changelog entry in `SPEC.md`: `- YYYY-MM-DD: Applied review feedback — <summary>`
+5. **Apply to code** — after specs are updated, treat the changed specs as the source of truth:
+   - Read the updated spec files (especially `acceptance.md` and `design.md`)
+   - Compare to current code — identify gaps where code doesn't match the updated spec
+   - Implement the changes, following the spec-led workflow (see **Spec-led workflow** above)
+   - Update `design.md` with any new code pointers if the implementation changed significantly
+6. **Report** — after applying, summarize what was changed in both specs and code, and what was left as-is (with reasons).
+
+If the review file is not in `specs/reviews/`, ask the user to run:
+```bash
+npx storyline-review export <session-id>
 ```
 
 ## Install
