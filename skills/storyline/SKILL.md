@@ -71,52 +71,35 @@ As the number of features grows, keep **navigation** cheap for humans and agents
 
 **Default:** a single **`SPEC.md`** with the full template (below). Good for small or young features.
 
-**Split when** the spec grows or when you want **review-ready** focused files. Each file maps to a specific review question—one file, one focus.
+**Split when** the spec grows or when you want **review-ready** focused files. Each file maps to a clear review question—one file, one focus. **Use 4 files, not 10.**
 
 ```text
 specs/<feature>/
   SPEC.md              # entry point + one-line summary + changelog
-
-  # Product review files
-  problem.md           # 5 Whys: root cause, why this matters
-  actors.md            # who uses this, roles, contexts, personas
-  journey.md           # story map placement, entry/exit points, flow steps + diagram
+  intent.md            # why this exists, who it's for, how it fits in the journey
   acceptance.md        # testable pass/fail criteria only
-
-  # Architecture review files
-  systems.md           # which repos/packages/services are affected, pointers to code
-  data.md              # tables, columns, migrations, relationships, volume
-  api.md               # endpoints, methods, contracts, breaking changes
-  risks.md             # load patterns, failure modes, edge cases, recovery
-
-  # Cross-cutting
-  scope.md             # in/out, open questions, deferred items
-  ui.md                # frontend integration hints (optional)
+  design.md            # systems, data model, API — how we build it
+  risks.md             # what can go wrong, scope boundaries, open questions
 
   reviews/             # saved review results (auto-generated)
 ```
 
-| File | Focus | Review step it serves |
-|------|-------|----------------------|
+| File | Focus | Review question |
+|------|-------|----------------|
 | **`SPEC.md`** | Entry point + changelog | — |
-| **`problem.md`** | Why this exists; 5 Whys root cause | Product: "What problem are we solving?" |
-| **`actors.md`** | Who uses this, roles, personas, contexts | Product: "Who is the user?" |
-| **`journey.md`** | Story map position, entry/exit points, flow steps, Mermaid diagram | Product: "Where does this fit in the journey?" |
-| **`acceptance.md`** | Testable pass/fail criteria | Product: "Are acceptance criteria testable?" |
-| **`systems.md`** | Which repos/packages change, pointers to code | Architecture: "Which systems are affected?" |
-| **`data.md`** | Tables, columns, migrations, relationships | Architecture: "Data model impact?" |
-| **`api.md`** | Endpoints, methods, contracts | Architecture: "API design?" |
-| **`risks.md`** | Load, failure modes, edge cases, recovery | Architecture: "What can go wrong?" |
-| **`scope.md`** | In/out boundaries, open questions | Both: "Is the scope right?" |
-| **`ui.md`** | Frontend integration hints | Cross-cutting |
+| **`intent.md`** | Problem, actors, journey, Mermaid diagrams | "Why are we building this and for whom?" |
+| **`acceptance.md`** | Testable pass/fail criteria | "How do we know it's done?" |
+| **`design.md`** | Systems, data, API, UI hints | "How are we building it?" |
+| **`risks.md`** | Failure modes, edge cases, scope in/out, open questions | "What could go wrong and what's out of scope?" |
 
-**Files are optional.** If a feature has no database changes, skip `data.md`. If there's no API, skip `api.md`. Missing files are auto-skipped in review.
+**Files are optional.** If a feature has no technical design worth discussing, skip `design.md`. Missing files are auto-skipped in review.
 
 Rules:
 
 - **`SPEC.md` is always the canonical entry** (and holds **Changelog**).
 - Split only when it **reduces noise** for reviewers—not to fill every template.
-- Mermaid diagrams live in **`journey.md`** when split; otherwise in **`SPEC.md`**.
+- Mermaid diagrams live in **`intent.md`** when split; otherwise in **`SPEC.md`**.
+- **Backward compatibility:** the review tool also recognizes legacy filenames (`problem.md`, `actors.md`, `journey.md`, `systems.md`, `data.md`, `api.md`, `scope.md`, `ui.md`). Old specs keep working. New specs should use the 4-file structure.
 
 ## File templates
 
@@ -158,68 +141,31 @@ Rules:
 
 One-line summary.
 
-[problem](problem.md) · [actors](actors.md) · [journey](journey.md) · [acceptance](acceptance.md) · [systems](systems.md) · [data](data.md) · [api](api.md) · [risks](risks.md) · [scope](scope.md) · [ui](ui.md)
+[intent](intent.md) · [acceptance](acceptance.md) · [design](design.md) · [risks](risks.md)
 
 ## Changelog
 - YYYY-MM-DD: …
 ```
 
-### `problem.md`
+### `intent.md`
 
 ```markdown
-# <Feature> — problem
+# <Feature> — intent
 
 ## The problem
 <!-- What is broken, missing, or painful? Be specific. -->
 
-## 5 Whys
-1. Why? …
-2. Why? …
-3. Why? …
-4. Why? …
-5. Why? … (root cause)
+## Why it matters
+<!-- Impact of inaction — what happens if we don't solve this? -->
 
-## What happens if we don't solve this?
-<!-- Impact of inaction -->
-```
+## Who uses this
+<!-- Primary users: role, context, frequency. Secondary users. Who does NOT use this. -->
 
-### `actors.md`
-
-```markdown
-# <Feature> — actors
-
-## Primary users
-<!-- Who directly uses this? Role, context, frequency -->
-
-## Secondary users
-<!-- Who is affected indirectly? Admin, system, other roles -->
-
-## Non-users
-<!-- Who explicitly does NOT use this? Helps scope -->
-```
-
-### `journey.md`
-
-```markdown
-# <Feature> — journey
-
-## Story map position
-- **Activity:** <top-level user goal from STORY-MAP.md>
-- **Step:** <which step within that activity>
-- **This feature:** <what it does in that step>
-
-## Entry points
-- From: <what the user was doing before>
-
-## Exit points
-- To: <where the user goes next>
-
-## Flow
-1. …
-2. …
+## User flow
+<!-- Numbered steps: happy path + key alternatives. Entry and exit points. -->
 
 ## Flow diagram (optional)
-<!-- Mermaid when branches/actors make text hard to follow -->
+<!-- Mermaid when branches or multiple actors make text hard to follow -->
 ```
 
 ### `acceptance.md`
@@ -233,96 +179,41 @@ Each item must be verifiable with a clear yes/no test.
 - [ ] …
 ```
 
-### `systems.md`
+### `design.md`
 
 ```markdown
-# <Feature> — systems
+# <Feature> — design
 
-## Affected repos/packages
-<!-- Which parts of the codebase change? -->
+## Systems affected
+<!-- Which repos, packages, services change? Key files/controllers. -->
 
-## Pointers to code
-<!-- Key files, packages, controllers — at most a few lines -->
-```
+## Data model
+<!-- Tables, columns, relationships, migrations. Skip if no DB changes. -->
 
-### `data.md`
+## API
+<!-- Endpoints, methods, contracts. Skip if no API. -->
 
-```markdown
-# <Feature> — data model
-
-## New/changed tables
-<!-- Table name, key columns, relationships -->
-
-## Migrations
-<!-- Migration file reference, backward compatibility -->
-
-## Data volume
-<!-- Expected row counts, growth rate -->
-```
-
-### `api.md`
-
-```markdown
-# <Feature> — API
-
-## Endpoints
-
-| Method | Path | Purpose |
-|--------|------|---------|
-| … | … | … |
-
-## Breaking changes
-<!-- Any? Migration path? -->
-
-## Auth requirements
-<!-- Which roles/scopes needed per endpoint -->
+## UI / integration (optional)
+<!-- Screens, states, error handling — only when helpful for discussion. -->
 ```
 
 ### `risks.md`
 
 ```markdown
-# <Feature> — risks
+# <Feature> — risks & scope
 
-## Load patterns
-<!-- Expected request volume, hot paths, caching needs -->
-
-## Failure modes
-<!-- What can go wrong? Network, race conditions, data loss -->
-
-## Recovery
-<!-- How does the system recover from each failure? -->
-
-## Edge cases
-<!-- Non-obvious scenarios that could break things -->
-```
-
-### `scope.md`
-
-```markdown
-# <Feature> — scope
-
-## In
-- …
-
-## Out
-- …
+## Scope
+- In: …
+- Out: …
 
 ## Open questions
-<!-- Unresolved product or policy questions -->
+<!-- Unresolved product or policy decisions that could change scope -->
 
-## Deferred
-<!-- Things we decided to do later, with context on why -->
-```
+## Failure modes
+<!-- What can go wrong? Network, race conditions, data loss, edge cases -->
 
-### `ui.md`
-
-```markdown
-# <Feature> — UI / app integration hints
-
-## Auth & context
-## Screens / flows → API (high level)
-## Dynamic behaviour
-## Errors & empty states
+## Load & recovery
+<!-- Expected volume, hot paths, recovery strategy. Skip if not relevant. -->
 ```
 
 ## New work vs continuing work
@@ -343,7 +234,7 @@ Update when a new feature is added, or when a feature's position in the user jou
 ## How specs relate to code
 
 - **Specs lead with outcomes and flows.** After code changes, update the spec so **acceptance** matches what users get.
-- **Use code as truth for "how".** Pointers to code go in `systems.md`, never a full implementation map.
+- **Use code as truth for "how".** Pointers to code go in `design.md`, never a full implementation map.
 - **Technical requirements** = constraints the product cares about (legal, security, latency, compatibility).
 
 ## Concision rules
@@ -355,14 +246,14 @@ Update when a new feature is added, or when a feature's position in the user jou
 ## Two-way flow (spec ↔ code)
 
 - **Code changed** → same session, update relevant files; **`SPEC.md` Changelog** always; **`OVERVIEW.md`** only when capabilities shift; **`STORY-MAP.md`** when journey changes.
-- **User edits spec** → treat as **product intent**; implement or track unknowns in `scope.md`.
+- **User edits spec** → treat as **product intent**; implement or track unknowns in `risks.md` (scope section).
 
 ### Spec-led workflow
 
 When the user **edits `specs/`** and asks to implement:
 
 1. **Find the feature folder** via `specs/INDEX.md` or `OVERVIEW.md`.
-2. **Read all files** in the folder — especially `acceptance.md` and `scope.md`.
+2. **Read all files** in the folder — especially `acceptance.md` and `risks.md`.
 3. **Treat the spec as authoritative** for what and why; change code to match.
 4. **After implementation** — update files only if reality differs; append `SPEC.md` Changelog.
 
@@ -373,10 +264,10 @@ When the user **edits `specs/`** and asks to implement:
 | **"refresh overview"** | Update `specs/OVERVIEW.md`. Trim bloat. Append Changelog. |
 | **"implement from spec"** | Read the feature's files, compare to code, list gaps, implement, append Changelog. |
 | **"sync feature"** | Update spec files to match current code. Append Changelog. |
-| **"split feature"** | Split `SPEC.md` into the focused files (problem, actors, journey, acceptance, systems, data, api, risks, scope). Make `SPEC.md` an index. Append Changelog. |
-| **"ui hints"** | Add or update `ui.md`. Append Changelog. |
-| **"add flow diagram"** | Add or refresh Mermaid in `journey.md` (or `SPEC.md` if not split). Append Changelog. |
-| **"prepare for review"** | Check review readiness: (1) `problem.md` has specific root cause, (2) `actors.md` lists all roles, (3) `journey.md` has story map position + flows, (4) `acceptance.md` has testable criteria, (5) `scope.md` has in/out, (6) Changelog has today's entry. Report pass/fail per item. Fix what you can without changing intent. If `storyline-review/` exists, remind the user to run `cd storyline-review && npm run dev`. |
+| **"split feature"** | Split `SPEC.md` into the 4 focused files (`intent.md`, `acceptance.md`, `design.md`, `risks.md`). Make `SPEC.md` an index. Append Changelog. |
+| **"consolidate feature"** | Merge old 10-file specs into 4 files: `problem.md` + `actors.md` + `journey.md` → `intent.md`; `systems.md` + `data.md` + `api.md` + `ui.md` → `design.md`; `risks.md` + `scope.md` → `risks.md`. Keep `acceptance.md`. Remove the old files. Update `SPEC.md` index links. Append Changelog. |
+| **"add flow diagram"** | Add or refresh Mermaid in `intent.md` (or `SPEC.md` if not split). Append Changelog. |
+| **"prepare for review"** | Check review readiness: (1) `intent.md` has problem, users, and flow, (2) `acceptance.md` has testable criteria, (3) `risks.md` has scope in/out, (4) Changelog has today's entry. Report pass/fail per item. Fix what you can without changing intent. If `storyline-review/` exists, remind the user to run `cd storyline-review && npm run dev`. |
 | **"update story map"** | Refresh `specs/STORY-MAP.md` to reflect current features and their journey positions. |
 | **"start review"** / **"/storyline-review"** | Create a hosted collaborative review session. See **Hosted review workflow** below. |
 
@@ -386,8 +277,9 @@ When the user says **"start review"**, **"/storyline-review"**, or **"create a r
 
 1. **Check for changed specs** — identify which feature spec files have been modified recently (default: last 7 days). Summarize what changed.
 2. **Ask the user** which review type to create:
-   - **Product review** — problem, actors, journey, acceptance, scope
-   - **Architecture review** — systems, data, API, risks, scope
+   - **Product review** — intent, acceptance
+   - **Architecture review** — design, risks
+   - **Focus review** (default) — only files that actually changed
 3. **Create the session** using the CLI:
    ```bash
    cd storyline-review/cli && npx tsx index.ts create --since 7d
