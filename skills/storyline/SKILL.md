@@ -270,37 +270,62 @@ When the user **edits `specs/`** and asks to implement:
 | **"prepare for review"** | Check review readiness: (1) `intent.md` has problem, users, and flow, (2) `acceptance.md` has testable criteria, (3) `risks.md` has scope in/out, (4) Changelog has today's entry. Report pass/fail per item. Fix what you can without changing intent. If `storyline-review/` exists, remind the user to run `cd storyline-review && npm run dev`. |
 | **"update story map"** | Refresh `specs/STORY-MAP.md` to reflect current features and their journey positions. |
 | **"apply review"** | Read an exported review from `specs/reviews/`, identify concerns and blockers, update the relevant spec files to address them, and append Changelog entries. See **Applying a review** below. |
-| **"start review"** / **"/storyline-review"** | Create a hosted collaborative review session. See **Hosted review workflow** below. |
+| **"start review"** / **"/storyline-review"** / **"create a review"** | Run `npx storyline-review create` to create a hosted guided review. See **Hosted review workflow** below. |
 
 ## Hosted review workflow
 
 When the user says **"start review"**, **"/storyline-review"**, or **"create a review session"**:
 
-1. **Check for changed specs** — identify which feature spec files have been modified recently (default: last 7 days). Summarize what changed.
-2. **Ask the user** which review type to create:
-   - **Product review** — intent, acceptance
-   - **Architecture review** — design, risks
-   - **Focus review** (default) — only files that actually changed
-3. **Create the session** using the CLI:
+1. **Just run the CLI** — the default is a guided review of the latest commit, which is the right choice most of the time:
    ```bash
-   cd storyline-review/cli && npx tsx index.ts create --since 7d
-   # or for architecture: npx tsx index.ts create --since 7d --arch
+   npx storyline-review create
    ```
-4. **Present the output** — the CLI prints a review URL and a share link. Tell the user:
+   This creates a guided review scoped to specs changed in the latest commit. AI analyzes the specs, identifies the feature context (new/evolving/pivoting), and finds the critical question.
+
+2. **For other scopes or modes:**
+   ```bash
+   # Review a specific branch:
+   npx storyline-review create --branch
+
+   # Review changes from a time range:
+   npx storyline-review create --since 3d
+
+   # Review a specific feature:
+   npx storyline-review create --feature onboarding
+
+   # Legacy file-by-file modes:
+   npx storyline-review create --full
+   npx storyline-review create --arch
+
+   # Preview what would be sent:
+   npx storyline-review create --dry-run
+
+   # Interactive wizard (choose scope and mode step by step):
+   npx storyline-review create -i
+   ```
+
+3. **Present the output** — the CLI prints a review URL and a share link. Tell the user:
    - "Here's your review session: `<review URL>`"
    - "Share this link with your team: `<share link>`"
    - "Anyone with the share link can join without an account."
-5. **After the review** — when the user says "apply review" or "export review":
+   - For guided reviews: "AI has identified the most important question for your team to discuss."
+
+4. **After the review** — when the user says "apply review" or "export review":
    ```bash
-   cd storyline-review/cli && npx tsx index.ts export <session-id> --out specs/reviews/
+   npx storyline-review export <session-id>
    ```
    Then read the exported markdown and help apply any agreed changes to the specs.
 
-### CLI configuration
+### First-time setup
+
+The user needs to log in once before creating reviews:
+```bash
+npx storyline-review login
+```
 
 If the hosted server is not the default, configure it first:
 ```bash
-cd storyline-review/cli && npx tsx index.ts config https://your-server.vercel.app
+npx storyline-review config https://your-server.vercel.app
 ```
 
 ## Applying a review
