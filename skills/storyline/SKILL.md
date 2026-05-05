@@ -267,66 +267,151 @@ When the user **edits `specs/`** and asks to implement:
 | **"split feature"** | Split `SPEC.md` into the 4 focused files (`intent.md`, `acceptance.md`, `design.md`, `risks.md`). Make `SPEC.md` an index. Append Changelog. |
 | **"consolidate feature"** | Merge old 10-file specs into 4 files: `problem.md` + `actors.md` + `journey.md` → `intent.md`; `systems.md` + `data.md` + `api.md` + `ui.md` → `design.md`; `risks.md` + `scope.md` → `risks.md`. Keep `acceptance.md`. Remove the old files. Update `SPEC.md` index links. Append Changelog. |
 | **"add flow diagram"** | Add or refresh Mermaid in `intent.md` (or `SPEC.md` if not split). Append Changelog. |
-| **"prepare for review"** | Check review readiness: (1) `intent.md` has problem, users, and flow, (2) `acceptance.md` has testable criteria, (3) `risks.md` has scope in/out, (4) Changelog has today's entry. Report pass/fail per item. Fix what you can without changing intent. If `storyline-review/` exists, remind the user to run `cd storyline-review && npm run dev`. |
+| **"prepare for review"** | Check review readiness: (1) `intent.md` has problem, users, and flow, (2) `acceptance.md` has testable criteria, (3) `risks.md` has scope in/out, (4) Changelog has today's entry. Report pass/fail per item. Fix what you can without changing intent. If the review tool directory exists, remind the user to run `npm run dev` in it. |
 | **"update story map"** | Refresh `specs/STORY-MAP.md` to reflect current features and their journey positions. |
 | **"apply review"** | Read an exported review from `specs/reviews/`, identify concerns and blockers, update the relevant spec files to address them, and append Changelog entries. See **Applying a review** below. |
-| **"start review"** / **"/storyline-review"** / **"create a review"** | Run `npx storyline-review create` to create a hosted guided review. See **Hosted review workflow** below. |
+| **"start review"** / **"/storyline-review"** / **"create a review"** | Run `npx storyline-review create` to create a hosted review. See **Hosted review workflow** below. |
+
+## Proactive review suggestions
+
+After completing a **non-trivial code change** (new feature, significant refactor, API change, schema migration, security-relevant change), **suggest creating a review** before moving on:
+
+> "This change touches [area]. Want me to create a review so your team can weigh in? I can create a **product review** (challenges product decisions) or an **architecture review** (challenges technical decisions)."
+
+Triggers for suggesting a review:
+- New feature or significant extension of an existing one
+- Changes to API contracts, database schema, or auth/security logic
+- Refactors that change system boundaries or data flow
+- Any change the user explicitly marked as needing discussion
+
+**Do not suggest** for: typo fixes, formatting, dependency bumps, config tweaks, or test-only changes.
+
+When the user agrees, run the appropriate CLI command immediately — don't ask them to run it themselves.
 
 ## Hosted review workflow
 
-When the user says **"start review"**, **"/storyline-review"**, or **"create a review session"**:
+When the user says **"start review"**, **"/storyline-review"**, **"create a review"**, or you proactively suggest one:
 
-1. **Just run the CLI** — the default is a guided review of the latest commit, which is the right choice most of the time:
+### Two review types
+
+| Type | Flag | What Storyline looks for |
+|------|------|-------------------|
+| **Product** (default) | `--product` or no flag | The most important product risk: intent drift, scope creep, weak problem definition, missing success criteria, contradictions, premature implementation, risk escalation |
+| **Architecture** | `--arch` | The most important technical risk: API design issues, data model problems, security gaps, tech debt, scalability risks, missing abstractions |
+
+Both types find **one critical question** and create a structured discussion around it. Choose product for "are we building the right thing?" and architecture for "are we building it the right way?"
+
+### Creating a review
+
+1. **Default — product review of the latest commit** (right choice most of the time):
    ```bash
    npx storyline-review create
    ```
-   This creates a guided review scoped to specs changed in the latest commit. AI analyzes the specs, identifies the feature context (new/evolving/pivoting), and finds the critical question.
 
-2. **For other scopes or modes:**
+2. **Architecture review:**
    ```bash
-   # Review a specific branch:
+   npx storyline-review create --arch
+   ```
+
+3. **Other scopes:**
+   ```bash
+   # Specific commit (by hash or ref):
+   npx storyline-review create --commit abc1234
+
+   # Current branch vs main:
    npx storyline-review create --branch
 
-   # Review changes from a time range:
+   # Changes from a time range:
    npx storyline-review create --since 3d
 
-   # Review a specific feature:
+   # Named feature (appears in session title):
    npx storyline-review create --feature onboarding
 
-   # Legacy file-by-file modes:
-   npx storyline-review create --full
-   npx storyline-review create --arch
-
-   # Preview what would be sent:
+   # Preview what would be sent without creating:
    npx storyline-review create --dry-run
 
-   # Interactive wizard (choose scope and mode step by step):
+   # Interactive wizard (choose scope + type step by step):
    npx storyline-review create -i
    ```
 
-3. **Present the output** — the CLI prints a review URL and a share link. Tell the user:
-   - "Here's your review session: `<review URL>`"
-   - "Share this link with your team: `<share link>`"
-   - "Anyone with the share link can join without an account."
-   - For guided reviews: "AI has identified the most important question for your team to discuss."
-
-4. **After the review** — when the user says "apply review" or "export review":
+4. **Combine flags** as needed:
    ```bash
-   npx storyline-review export <session-id>
+   npx storyline-review create --arch --branch --feature auth-rework
    ```
-   Then read the exported markdown and help apply any agreed changes to the specs.
+
+### After running the command
+
+The CLI prints a review URL and a join code. Tell the user:
+- "Here's your review: `<URL>`"
+- "Share this with your team — anyone with the link can join without an account."
+- "Join code: `<CODE>` (teammates can use this at storyline-review.vercel.app)"
+- "Storyline found the most critical [product/technical] risk in your changes."
+
+### After the review is complete
+
+When the user says "apply review" or "export review":
+```bash
+npx storyline-review export <session-id>
+```
+Then read the exported markdown and help apply any agreed changes to specs and code.
 
 ### First-time setup
 
-The user needs to log in once before creating reviews:
+Login is required once before creating reviews:
 ```bash
 npx storyline-review login
 ```
 
-If the hosted server is not the default, configure it first:
+If using a custom server (not the default):
 ```bash
 npx storyline-review config https://your-server.vercel.app
 ```
+
+## GitHub Actions — automatic reviews on PRs
+
+Storyline can automatically evaluate every PR and create reviews when changes are non-trivial. The workflow reviews the **full PR branch diff** against main — not just the last commit. Trivial changes (typos, formatting, version bumps, tiny diffs) are skipped without costing an API call.
+
+### Setup
+
+The fastest way:
+
+```bash
+npx storyline-review login            # get an API key (one-time)
+npx storyline-review setup-github     # writes workflow file + helps set the secret
+```
+
+`setup-github` does three things:
+1. Creates `.github/workflows/storyline-review.yml` in your repo
+2. Detects your GitHub remote and prints a direct link to the secrets page
+3. If the `gh` CLI is installed, offers to set `STORYLINE_API_KEY` automatically
+
+Then commit, push, and open a PR to see it in action.
+
+**Manual setup** (if you prefer):
+1. Get an API key — `npx storyline-review login`, then `npx storyline-review whoami`.
+2. Add `STORYLINE_API_KEY` as a GitHub Actions secret (Settings > Secrets > Actions).
+3. Copy the workflow file from the storyline-review repo to `.github/workflows/storyline-review.yml`.
+
+**Optional: custom server** — set the `STORYLINE_SERVER` repository variable if you self-host.
+
+### CI flags reference
+
+```bash
+npx storyline-review create --json --skip-trivial                    # product review, JSON output, skip if trivial
+npx storyline-review create --arch --json --skip-trivial             # architecture review for CI
+npx storyline-review create --branch feature/xyz --json              # full branch diff vs main (used by GH Action)
+npx storyline-review create --commit abc1234 --json                  # specific commit diff
+npx storyline-review config <url> --key <key>                        # non-interactive auth
+```
+
+`--json` outputs machine-readable JSON:
+```json
+{ "ok": true, "trivial": false, "sessionId": "...", "reviewUrl": "...", "shareUrl": "...", "joinCode": "ABC123", "mode": "product" }
+```
+
+When trivial: `{ "ok": true, "trivial": true, "reason": "..." }`
+
+`--skip-trivial` exits cleanly (exit 0, no API call) when the CLI detects a trivial change. Without it, `--json` still reports trivial but makes the API call.
 
 ## Applying a review
 
