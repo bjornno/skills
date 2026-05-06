@@ -95,13 +95,11 @@ specs/<feature>/
   reviews/             # saved review results (auto-generated)
 ```
 
-| File | Focus | Review question |
-|------|-------|----------------|
-| **`SPEC.md`** | Entry point + changelog | — |
-| **`intent.md`** | Problem, actors, journey, Mermaid diagrams | "Why are we building this and for whom?" |
-| **`acceptance.md`** | Testable pass/fail criteria | "How do we know it's done?" |
-| **`design.md`** | Systems, data, API, UI hints | "How are we building it?" |
-| **`risks.md`** | Failure modes, edge cases, scope in/out, open questions | "What could go wrong and what's out of scope?" |
+- **`SPEC.md`** — Entry point + changelog
+- **`intent.md`** — Problem, actors, journey, Mermaid diagrams → "Why are we building this and for whom?"
+- **`acceptance.md`** — Testable pass/fail criteria → "How do we know it's done?"
+- **`design.md`** — Systems, data, API, UI hints → "How are we building it?"
+- **`risks.md`** — Failure modes, edge cases, scope in/out, open questions → "What could go wrong and what's out of scope?"
 
 **Files are optional.** If a feature has no technical design worth discussing, skip `design.md`. Missing files are auto-skipped in review.
 
@@ -271,24 +269,22 @@ When the user **edits `specs/`** and asks to implement:
 
 ## Prompts
 
-| Trigger | What to do |
-|---------|------------|
-| **"refresh overview"** | Update `specs/OVERVIEW.md`. Trim bloat. Append Changelog. |
-| **"implement from spec"** | Read the feature's files, compare to code, list gaps, implement, append Changelog. |
-| **"sync feature"** | Update spec files to match current code. Append Changelog. |
-| **"split feature"** | Split `SPEC.md` into the 4 focused files (`intent.md`, `acceptance.md`, `design.md`, `risks.md`). Make `SPEC.md` an index. Append Changelog. |
-| **"consolidate feature"** | Merge old 10-file specs into 4 files: `problem.md` + `actors.md` + `journey.md` → `intent.md`; `systems.md` + `data.md` + `api.md` + `ui.md` → `design.md`; `risks.md` + `scope.md` → `risks.md`. Keep `acceptance.md`. Remove the old files. Update `SPEC.md` index links. Append Changelog. |
-| **"add flow diagram"** | Add or refresh Mermaid in `intent.md` (or `SPEC.md` if not split). Append Changelog. |
-| **"prepare for review"** | Check review readiness: (1) `intent.md` has problem, users, and flow, (2) `acceptance.md` has testable criteria, (3) `risks.md` has scope in/out, (4) Changelog has today's entry. Report pass/fail per item. Fix what you can without changing intent. If the review tool directory exists, remind the user to run `npm run dev` in it. |
-| **"update story map"** | Refresh `specs/STORY-MAP.md` to reflect current features and their journey positions. |
-| **"apply review"** | Read an exported review from `specs/reviews/`, identify concerns and blockers, update the relevant spec files to address them, and append Changelog entries. See **Applying a review** below. |
-| **"start review"** / **"/storyline-review"** / **"create a review"** | Run `npx storyline-review create` to create a hosted review. See **Hosted review workflow** below. |
+- **"refresh overview"** — Update `specs/OVERVIEW.md`. Trim bloat. Append Changelog.
+- **"implement from spec"** — Read the feature's files, compare to code, list gaps, implement, append Changelog.
+- **"sync feature"** — Update spec files to match current code. Append Changelog.
+- **"split feature"** — Split `SPEC.md` into the 4 focused files (`intent.md`, `acceptance.md`, `design.md`, `risks.md`). Make `SPEC.md` an index. Append Changelog.
+- **"consolidate feature"** — Merge old 10-file specs into 4 files: `problem.md` + `actors.md` + `journey.md` → `intent.md`; `systems.md` + `data.md` + `api.md` + `ui.md` → `design.md`; `risks.md` + `scope.md` → `risks.md`. Keep `acceptance.md`. Remove the old files. Update `SPEC.md` index links. Append Changelog.
+- **"add flow diagram"** — Add or refresh Mermaid in `intent.md` (or `SPEC.md` if not split). Append Changelog.
+- **"prepare for review"** — Check review readiness: (1) `intent.md` has problem, users, and flow, (2) `acceptance.md` has testable criteria, (3) `risks.md` has scope in/out, (4) Changelog has today's entry. Report pass/fail per item. Fix what you can without changing intent.
+- **"update story map"** — Refresh `specs/STORY-MAP.md` to reflect current features and their journey positions.
+- **"apply review"** — Read a review from `specs/reviews/`, identify concerns and blockers, update the relevant spec files to address them, and append Changelog entries. See **Applying a review** below.
+- **"start review"** / **"/storyline-review"** / **"create a review"** — Run an **inline review** right here in the agent. See **Inline review workflow** below. For a hosted session instead, use `npx storyline-review create`.
 
 ## Proactive review suggestions
 
 After completing a **non-trivial code change** (new feature, significant refactor, API change, schema migration, security-relevant change), **suggest creating a review** before moving on:
 
-> "This change touches [area]. Want me to create a review so your team can weigh in? I can create a **product review** (challenges product decisions) or an **architecture review** (challenges technical decisions)."
+> "This change touches [area]. Want me to run a quick review? I can challenge the **product decisions** or the **architecture**. I'll do it right here — or I can create a hosted session if you want to involve the team async."
 
 Triggers for suggesting a review:
 - New feature or significant extension of an existing one
@@ -298,60 +294,247 @@ Triggers for suggesting a review:
 
 **Do not suggest** for: typo fixes, formatting, dependency bumps, config tweaks, or test-only changes.
 
-When the user agrees, run the appropriate CLI command immediately — don't ask them to run it themselves.
+When the user agrees, start the inline review immediately.
 
-## Hosted review workflow
+## Inline review workflow
 
-When the user says **"start review"**, **"/storyline-review"**, **"create a review"**, or you proactively suggest one:
+When the user says **"start review"**, **"/storyline-review"**, **"create a review"**, or you proactively suggest one, run the review **inline in this conversation**. No server, no API key, no login needed.
+
+### Before starting — recommend team discussion
+
+Before collecting context, tell the user:
+
+> "This works best as a team discussion — if you can, gather the team around a screen or start a screen-share. For async team reviews where everyone responds individually, use `npx storyline-review create` to create a hosted session."
+
+Then proceed immediately — don't wait for confirmation.
 
 ### Two review types
 
-| Type | Flag | What Storyline looks for |
-|------|------|-------------------|
-| **Product** (default) | `--product` or no flag | The most important product risk: intent drift, scope creep, weak problem definition, missing success criteria, contradictions, premature implementation, risk escalation |
-| **Architecture** | `--arch` | The most important technical risk: API design issues, data model problems, security gaps, tech debt, scalability risks, missing abstractions |
+- **Product** — finds the most important product risk: intent drift, scope creep, weak problem definition, missing success criteria, contradictions, premature implementation, risk escalation
+- **Architecture** — finds the most important technical risk: API design issues, data model problems, security gaps, tech debt, scalability risks, missing abstractions
 
-Both types find **one critical question** and create a structured discussion around it. Choose product for "are we building the right thing?" and architecture for "are we building it the right way?"
+**Auto-detection:** If the user just says "start review" without specifying a type, pick the type based on what changed:
 
-### Creating a review
+- **Mostly spec/intent/acceptance changes** (new feature, rewritten user stories, changed success criteria, scope changes) → **Product**
+- **Mostly code/schema/API/config changes** (new endpoints, migrations, refactors, dependency changes) → **Architecture**
+- **Both significant** → run **Product** first. After completing it, ask: "This change also has significant code/architecture impact. Want me to run an architecture review too?"
 
-1. **Default — product review of the latest commit** (right choice most of the time):
-   ```bash
-   npx storyline-review create
-   ```
+If the user explicitly asks for a type ("architecture review", "product review"), use that type regardless.
 
-2. **Architecture review:**
-   ```bash
-   npx storyline-review create --arch
-   ```
+### Step 1: Collect context
 
-3. **Other scopes:**
-   ```bash
-   # Specific commit (by hash or ref):
-   npx storyline-review create --commit abc1234
+1. **Find specs** — read `specs/INDEX.md`, identify features with changes.
+2. **Determine scope** — default is the latest commit. If the user said "review the branch" or "review commit X", use that scope.
+   - Latest commit: `git log -1 --format=%H` then `git diff HEAD~1..HEAD -- specs/`
+   - Branch: `git diff main...HEAD -- specs/`
+   - Specific commit: `git diff <hash>~1..<hash> -- specs/`
+3. **Read changed spec files** — for each changed feature, read all spec files (intent.md, acceptance.md, design.md, risks.md, SPEC.md).
+4. **Read unchanged spec files** — as context (especially for features with partial changes).
+5. **Collect code diffs** — `git diff <scope> -- '*.ts' '*.js' '*.svelte' '*.py' '*.java' '*.kt' '*.go' '*.rs'` (excluding node_modules, dist, build artifacts). Limit to ~12KB total, ~3KB per file.
+6. **Read review history** — check `specs/reviews/` for prior review files mentioning this feature.
+7. **Read previous decisions** — look in `risks.md` (scope section) and `SPEC.md` (changelog) for recorded decisions.
+8. **If the user specified a feature** — filter to `specs/<feature>/` only.
 
-   # Current branch vs main:
-   npx storyline-review create --branch
+### Step 2: Trivial check
 
-   # Changes from a time range:
-   npx storyline-review create --since 3d
+Before running the full analysis, check if the change is trivial:
+- Commit message matches trivial patterns (typo, format, bump, chore, lint, style, docs with no behavioral change)
+- Total diff is very small (< 10 lines of meaningful change)
+- Changes are code-only with no spec modifications and the diff is tiny
 
-   # Single feature (filters to specs/<name>/ only):
-   npx storyline-review create --feature auth
+If trivial, tell the user: "This looks like a trivial change (reason). Nothing worth reviewing here. Want me to review it anyway?"
 
-   # Preview what would be sent without creating:
-   npx storyline-review create --dry-run
+If the user says no, stop. If yes, proceed.
 
-   # Interactive wizard (choose scope + type step by step):
-   npx storyline-review create -i
-   ```
+### Step 3: Analyze — find the ONE most important risk
 
-4. **Combine flags** as needed:
-   ```bash
-   npx storyline-review create --arch --branch --feature auth
-   ```
+You are now an **opinionated challenge engine**. Your job is to find the single most important risk and force the team to confront it.
 
-   `--feature` works as a filter on any scope — it narrows the review to a single feature folder while keeping the chosen diff range (commit, branch, time).
+**Your tone:**
+- Critical and direct — no hedging, no softening
+- Specific — cite exact evidence from the specs and code
+- Slightly uncomfortable — the user should feel "oh… we might be building the wrong thing"
+- Evidence-based — every claim must reference something concrete
+
+**Your tone is NOT:**
+- Polite or diplomatic
+- Generic ("this looks good overall")
+- Vague ("consider whether…")
+
+#### Product frames (use for product reviews)
+
+Pick the ONE frame that represents the strongest risk:
+
+- **Intent drift** — The feature started as X but is becoming Y. The original user problem is getting lost.
+- **Scope creep** — Work keeps expanding beyond the original boundaries. Building more than needed.
+- **Weak problem** — The problem this solves is unclear, assumed, or not validated. May be building something nobody needs.
+- **Missing success criteria** — No way to tell if this feature succeeded. Shipping without knowing what "done" looks like.
+- **Contradiction** — The specs say one thing but the code/changes do another. Or different parts of the spec contradict each other.
+- **Premature implementation** — Building before validating the approach. Technical work ahead of product clarity.
+- **Risk escalation** — A risk that was previously acceptable has become dangerous due to this change.
+
+#### Architecture frames (use for architecture reviews)
+
+- **API design** — API surface is inconsistent, leaky, breaking contract, missing versioning, or poorly typed.
+- **Data model** — Schema is denormalized wrong, missing constraints, has migration risks, or data integrity issues.
+- **Security gap** — Auth/authz holes, input validation missing, secrets exposed, injection vectors. Specific to this code.
+- **Tech debt** — Wrong framework choice, unnecessary dependency, tight coupling, or unmaintainable patterns.
+- **Scalability risk** — N+1 queries, missing indexes, unbounded lists, no caching, synchronous ops that should be async.
+- **Missing abstraction** — Duplicated logic, wrong layering, god classes, or missing interfaces.
+
+#### Analysis output
+
+From the specs, diffs, and history, determine:
+
+1. **Feature status**: new / evolving / preparatory / pivoting
+2. **Frame**: which of the frames above is the dominant risk
+3. **Claim**: 1-2 sentences, specific, evidence-based, uncomfortable. Not "there might be scope concerns" but "This feature started as onboarding improvement, but the last 3 changes have all been admin workflows."
+4. **Critical question**: a YES/NO question the team must answer. Phrased as "Is…", "Should…", "Are you comfortable with…" — NEVER "Why…", "How…", or "What…"
+5. **Discussion steps**: 2-4 steps, each with a specific question and 2-3 response options (at least one uncomfortable)
+6. **Evidence**: bullet points from the specs/code that support the claim
+
+If previous decisions exist, check whether this change respects them. If not, that's an angle.
+
+### Step 4: Present the confrontation
+
+Present the review to the user in this format:
+
+---
+
+**[FRAME TITLE]**
+
+[Your claim — specific, evidence-based, slightly uncomfortable]
+
+**[Critical question — yes/no phrased]**
+
+How do you see it? Yes / No / Unsure
+
+---
+
+Wait for the user's response before continuing. This is the most important moment — don't rush past it.
+
+### Step 5: Walk through discussion steps
+
+After the user responds to the critical question, walk through each discussion step one at a time:
+
+For each step:
+1. Present the step context (the evidence that makes this question unavoidable)
+2. Ask the specific question
+3. Present 2-3 response options
+4. Wait for the user's response and optional comment
+5. Acknowledge, then move to the next step
+
+**Do not present all steps at once.** One step per message. Let the user think.
+
+#### Recovery — "try another angle"
+
+If the user says **"that doesn't feel right"**, **"try another angle"**, or similar at any point during the review:
+
+1. Note which frame you previously selected
+2. Re-read the specs and diffs
+3. Re-analyze, explicitly avoiding the previous frame — find the next strongest signal
+4. Present the new confrontation and restart from Step 4
+
+### Step 6: Synthesize outcome
+
+After all steps are complete, synthesize the outcome:
+
+1. **Decision**: What was actually decided (1-2 sentences). If nothing was decided, say so.
+2. **Rationale**: Based on what the user actually said.
+4. **Open questions**: Unresolved questions blocking progress.
+5. **Follow-up actions**: Concrete next steps.
+
+Present the draft outcome and ask: "Does this capture the discussion? Want to edit anything before I save?"
+
+### Step 7: Save the review
+
+After the user confirms, save the review as markdown to `specs/reviews/`:
+
+**Filename:** `YYYY-MM-DD-<mode>-<feature>-review.md` (e.g. `2026-05-06-product-auth-review.md`)
+
+**Format** (must match hosted export for compatibility):
+
+```markdown
+# Review History
+
+## YYYY-MM-DD — [Frame title]
+
+**Scope:** [latest commit abc1234 / branch feature/xyz vs main]
+
+**Feature:** [feature name]
+
+**Participants:** [name1, name2 (perspective)]
+
+**Feature summary:** [1-2 sentence summary]
+
+**User impact:** [what users actually get]
+
+**Discussion prompt:** [the critical question]
+
+**Context:** [the claim/tension]
+
+**Decision:** [what was decided]
+
+**Rationale:** [why, including dissent]
+
+**Spec updates:**
+- [specific update 1]
+- [specific update 2]
+
+**Open questions:**
+- [question 1]
+
+**Follow-up actions:**
+- [action 1]
+
+### Discussion Steps
+
+#### [Step purpose]
+> [Step prompt]
+
+**[Participant name]:** [Response label]
+
+[Comment if any]
+
+#### [Next step]
+...
+```
+
+After saving:
+1. Append a changelog entry to the feature's `SPEC.md`: `- YYYY-MM-DD: Review — [frame title]: [one-line decision summary]`
+2. Tell the user: "Review saved to `specs/reviews/YYYY-MM-DD-<mode>-<feature>-review.md`"
+3. If there were spec updates in the outcome, ask: "Want me to apply the spec updates now?"
+
+### After saving
+
+If the discussion raised unresolved questions or the user mentioned absent team members, suggest:
+
+> "Want to get the broader team's input? I can create a hosted session where everyone responds individually: `npx storyline-review create`"
+
+## Hosted review workflow (alternative)
+
+For teams that want shareable URLs, real-time collaboration, and GitHub PR integration, use the CLI to create a **hosted** review session instead of (or in addition to) the inline review.
+
+### Creating a hosted review
+
+```bash
+# Product review of latest commit (default):
+npx storyline-review create
+
+# Architecture review:
+npx storyline-review create --arch
+
+# Other scopes:
+npx storyline-review create --commit abc1234
+npx storyline-review create --branch
+npx storyline-review create --since 3d
+npx storyline-review create --feature auth
+npx storyline-review create --dry-run
+npx storyline-review create -i              # interactive wizard
+
+# Combine flags:
+npx storyline-review create --arch --branch --feature auth
+```
 
 ### After running the command
 
@@ -359,7 +542,6 @@ The CLI prints a review URL and a join code. Tell the user:
 - "Here's your review: `<URL>`"
 - "Share this with your team — anyone with the link can join without an account."
 - "Join code: `<CODE>` (teammates can use this at storyline-review.vercel.app)"
-- "Storyline found the most critical [product/technical] risk in your changes."
 
 ### After the review is complete
 
@@ -371,62 +553,23 @@ Then read the exported markdown and help apply any agreed changes to specs and c
 
 ### First-time setup
 
-Login is required once before creating reviews:
+Login is required once before creating hosted reviews:
 ```bash
 npx storyline-review login
 ```
 
-If using a custom server (not the default):
-```bash
-npx storyline-review config https://your-server.vercel.app
-```
-
 ## GitHub Actions — automatic reviews on PRs
 
-Storyline can automatically evaluate every PR and create reviews when changes are non-trivial. The workflow reviews the **full PR branch diff** against main — not just the last commit. Trivial changes (typos, formatting, version bumps, tiny diffs) are skipped without costing an API call.
+Storyline can automatically evaluate every PR and create hosted reviews when changes are non-trivial.
 
 ### Setup
-
-The fastest way:
 
 ```bash
 npx storyline-review login            # get an API key (one-time)
 npx storyline-review setup-github     # writes workflow file + helps set the secret
 ```
 
-`setup-github` does three things:
-1. Creates `.github/workflows/storyline-review.yml` in your repo
-2. Detects your GitHub remote and prints a direct link to the secrets page
-3. If the `gh` CLI is installed, offers to set `STORYLINE_API_KEY` automatically
-
 Then commit, push, and open a PR to see it in action.
-
-**Manual setup** (if you prefer):
-1. Get an API key — `npx storyline-review login`, then `npx storyline-review whoami`.
-2. Add `STORYLINE_API_KEY` as a GitHub Actions secret (Settings > Secrets > Actions).
-3. Copy the workflow file from the storyline-review repo to `.github/workflows/storyline-review.yml`.
-
-**Optional: custom server** — set the `STORYLINE_SERVER` repository variable if you self-host.
-
-### CI flags reference
-
-```bash
-npx storyline-review create --json --skip-trivial                    # product review, JSON output, skip if trivial
-npx storyline-review create --arch --json --skip-trivial             # architecture review for CI
-npx storyline-review create --branch feature/xyz --json              # full branch diff vs main (used by GH Action)
-npx storyline-review create --commit abc1234 --json                  # specific commit diff
-npx storyline-review create --feature auth --branch --json           # single feature, full branch
-npx storyline-review config <url> --key <key>                        # non-interactive auth
-```
-
-`--json` outputs machine-readable JSON:
-```json
-{ "ok": true, "trivial": false, "sessionId": "...", "reviewUrl": "...", "shareUrl": "...", "joinCode": "ABC123", "mode": "product" }
-```
-
-When trivial: `{ "ok": true, "trivial": true, "reason": "..." }`
-
-`--skip-trivial` exits cleanly (exit 0, no API call) when the CLI detects a trivial change. Without it, `--json` still reports trivial but makes the API call.
 
 ## Applying a review
 
@@ -443,8 +586,8 @@ When the user says **"apply review"**, or has an exported review file they want 
    - **CONCERN** — read the comment, decide if the spec should be updated. Present each concern to the user with a proposed change.
    - **BLOCKER** — these must be resolved. Read the comment, propose a concrete spec update, and ask the user to confirm before applying.
 4. **Apply to specs** — for each concern/blocker the user agrees to address:
-   - Update the relevant spec file(s) under `specs/<feature>/`
-   - Append a Changelog entry in `SPEC.md`: `- YYYY-MM-DD: Applied review feedback — <summary>`
+   - Update the relevant spec file(s)
+   - Append a Changelog entry in the feature's `SPEC.md`: `- YYYY-MM-DD: Applied review feedback — <summary>`
 5. **Apply to code** — after specs are updated, treat the changed specs as the source of truth:
    - Read the updated spec files (especially `acceptance.md` and `design.md`)
    - Compare to current code — identify gaps where code doesn't match the updated spec
@@ -452,10 +595,11 @@ When the user says **"apply review"**, or has an exported review file they want 
    - Update `design.md` with any new code pointers if the implementation changed significantly
 6. **Report** — after applying, summarize what was changed in both specs and code, and what was left as-is (with reasons).
 
-If the review file is not in `specs/reviews/`, ask the user to run:
+If no review file exists in `specs/reviews/`, ask the user to run:
 ```bash
 npx storyline-review export <session-id>
 ```
+This saves the hosted review to `specs/reviews/`.
 
 ## Install
 
